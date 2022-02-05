@@ -33,6 +33,7 @@
             top: 0
         }
         #toolbar * {
+            margin-top: 0.5rem;
             margin-right: 2rem;
         }
     </style>
@@ -47,6 +48,7 @@
                 <span>Ruudun korkeus {{ '{{ cellHeight }}' }}px</span>
                 <button @click="cellHeight += 1">Lisää +</button>
                 <button @click="cellHeight -= 1">Vähennä -</button>
+                <button @click="cellHeight = 15">Reset</button>
             </div>
             <div id="wrapper" @click="handleTap()">
                 <img ref="img" src="/{{ img_path }}" alt="">
@@ -71,6 +73,14 @@
                         };
                     }
                 });
+            },
+            watch: {
+                cellHeight() {
+                    axios.post('/api/set_line?img=' + this.img, {
+                        line_pos: this.linePos,
+                        cell_height: this.cellHeight,
+                    });
+                }
             },
             methods: {
                 handleTap(reverse) {

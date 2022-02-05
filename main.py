@@ -42,6 +42,8 @@ def set_line():
     line_pos = request.json.get('line_pos')
     file_dict = files_table[img_filename]
     file_dict['line_pos'] = line_pos
+    if request.json.get('cell_height'):
+        file_dict['cell_height'] = request.json.get('cell_height')
     files_table[img_filename] = file_dict
     logger.info(files_table[img_filename])
     return 'ok'
