@@ -14,12 +14,11 @@
             position: relative;
         }
         img {
-            width: 100%;
             height: auto;
+            width: auto;
         }
         #line {
             position: absolute;
-            width: 100%;
             height: 10px;
             background-color: #00800026;
         }
@@ -35,6 +34,7 @@
         #toolbar * {
             margin-top: 0.5rem;
             margin-right: 2rem;
+            width: 100vw;
         }
     </style>
 </head>
@@ -52,7 +52,7 @@
             </div>
             <div id="wrapper" @click="handleTap()">
                 <img ref="img" src="/{{ img_path }}" alt="">
-                <div id="line" :style="{top: `${linePos}px`}"></div>
+                <div id="line" :style="{top: `${linePos}px`, width: `${imgWidth}px`}"></div>
             </div>
         </div>
     </script>
@@ -64,14 +64,16 @@
                 cellHeight: {{ file_dict.get("cell_height") or 15 }},
                 linePos: {{ file_dict.get("line_pos") or 0 }},
                 img: '{{ file_dict["filename"] }}',
+                imgWidth: null,
             }),
             mounted() {
                 this.$nextTick(() => {
-                    if (!this.linePos) {
-                        this.$refs.img.onload = () => {
+                    this.$refs.img.onload = () => {
+                        if (!this.linePos) {
                             this.linePos = this.$refs.img.height - 16;
-                        };
-                    }
+                        }
+                        this.imgWidth= this.$refs.img.width;
+                    };
                 });
             },
             watch: {
