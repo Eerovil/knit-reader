@@ -1,0 +1,72 @@
+<html>
+<head>
+    <title>Vue.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <style>
+        #wrapper {
+            display: flex
+        }
+        a.list-item {
+            display: flex;
+            flex-direction: column;
+            margin: 2rem;
+        }
+        img {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div id="vue-app">
+    </div>
+    <script type="template/html" id="template">
+        <div id="wrapper">
+            <a v-for="img in images" :href="`/?img=${img.filename}`" class="list-item">
+                <img :src="`/static/${img.filename}`">
+                <span>{{ '{{ img.name }}' }}</span>
+            </a>
+            
+            <input type="file" accept="image/*" @change="onFileChange" />
+        </div>
+    </script>
+    <script>
+        console.log('{{ files_table }}')
+        var app = new Vue({
+            el: '#vue-app',
+            template: "#template",
+            data: () => ({
+                images: {},
+                file: null,
+            }),
+            mounted() {
+                axios.get('/api/get_files').then(response => {
+                    this.images = response.data
+                })
+            },
+            methods: {
+                onFileChange(e) {
+                    const file = e.target.files[0]
+                    const name = prompt('Anna kuvalle nimi')
+                    let formData = new FormData();
+                    formData.append("file", file);
+                    formData.append("name", name);
+                    axios.post('/api/upload_image', formData, {
+                        headers: {
+                          "Content-Type": "multipart/form-data",
+                        },
+                    }).then((response) => {
+                        console.log(response)
+                    }).catch((error) => {
+                        console.log(error)
+                    })
+                },
+            },
+            computed: {
+            }
+        });
+    </script>
+</body>
+</html>

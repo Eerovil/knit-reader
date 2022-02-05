@@ -1,0 +1,93 @@
+<html>
+<head>
+    <title>Vue.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+        body {
+            position: relative;
+        }
+        img {
+            width: 100%;
+            height: auto;
+        }
+        #line {
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            background-color: #00800026;
+        }
+        #wrapper {
+            margin-top: 2rem;
+        }
+        #toolbar {
+            position: fixed;
+            background-color: #fff;
+            height: 2rem;
+            top: 0
+        }
+        #toolbar * {
+            margin-right: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="vue-app">
+    </div>
+    <script type="template/html" id="template">
+        <div id="wrapper-wrapper">
+            <div id="toolbar">
+                <button @click="handleTap(true)">Alas</button>
+                <span>Ruudun korkeus {{ '{{ cellHeight }}' }}px</span>
+                <button @click="cellHeight += 1">Lisää +</button>
+                <button @click="cellHeight -= 1">Vähennä -</button>
+            </div>
+            <div id="wrapper" @click="handleTap()">
+                <img ref="img" src="/{{ img_path }}" alt="">
+                <div id="line" :style="{top: `${linePos}px`}"></div>
+            </div>
+        </div>
+    </script>
+    <script>
+        var app = new Vue({
+            el: '#vue-app',
+            template: "#template",
+            data: () => ({
+                cellHeight: {{ file_dict.get("cell_height") or 15 }},
+                linePos: {{ file_dict.get("line_pos") or 0 }},
+                img: '{{ file_dict["filename"] }}',
+            }),
+            mounted() {
+                this.$nextTick(() => {
+                    if (!this.linePos) {
+                        this.$refs.img.onload = () => {
+                            this.linePos = this.$refs.img.height - 16;
+                        };
+                    }
+                });
+            },
+            methods: {
+                handleTap(reverse) {
+                    if (reverse) {
+                        this.linePos += this.cellHeight;
+                    } else {
+                        this.linePos -= this.cellHeight;
+                    }
+                    axios.post('/api/set_line?img=' + this.img, {
+                        line_pos: this.linePos,
+                        cell_height: this.cellHeight,
+                    });
+                }
+            },
+            computed: {
+            }
+        });
+    </script>
+</body>
+</html>
